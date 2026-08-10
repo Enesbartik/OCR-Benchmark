@@ -1,0 +1,66 @@
+<div class="w-full max-w-5xl mx-auto">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">
+        Beyannameler
+      </h1>
+
+      <p class="mt-2 text-gray-600">
+        OCR ile test edilecek belgeleri burada yöneteceğiz.
+      </p>
+    </div>
+
+    <%= link_to "Beyanname Yükle",
+                new_document_path,
+                class: "rounded-lg bg-blue-600 px-5 py-2.5 font-semibold text-white shadow-sm hover:bg-blue-700" %>
+  </div>
+
+  <% if @documents.any? %>
+    <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+      <% @documents.each do |document| %>
+
+        <div class="flex items-center justify-between p-5 border-b border-gray-200 last:border-b-0">
+          <div>
+            <p class="font-semibold text-gray-900">
+              <%= document.name %>
+            </p>
+
+            <% if document.file.attached? %>
+              <p class="mt-1 text-sm text-gray-500">
+                <%= document.file.filename.to_s %>
+              </p>
+            <% end %>
+
+            <% if document.notes.present? %>
+              <p class="mt-2 text-sm text-gray-600">
+                <%= document.notes %>
+              </p>
+            <% end %>
+          </div>
+
+          <% if document.file.attached? %>
+            <%= link_to "Dosyayı Aç",
+                        rails_blob_path(document.file, disposition: "inline"),
+                        target: "_blank",
+                        rel: "noopener",
+                        class: "rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" %>
+          <% end %>
+        </div>
+
+      <% end %>
+    </div>
+
+  <% else %>
+
+    <div class="rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-12 text-center">
+      <p class="font-medium text-gray-700">
+        Henüz yüklenmiş bir beyanname yok.
+      </p>
+
+      <p class="mt-1 text-sm text-gray-500">
+        İlk belgenizi yükleyerek OCR testlerine başlayabilirsiniz.
+      </p>
+    </div>
+
+  <% end %>
+</div>
