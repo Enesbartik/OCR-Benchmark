@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  document: one
+  provider: MyString
+  status: MyString
+  extracted_text: MyText
+  raw_response: 
+  error_message: MyText
+
+two:
+  document: two
+  provider: MyString
+  status: MyString
+  extracted_text: MyText
+  raw_response: 
+  error_message: MyText

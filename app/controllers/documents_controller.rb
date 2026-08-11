@@ -19,7 +19,18 @@ class DocumentsController < ApplicationController
       render :new, status: :unprocessable_entity
       end
     end
+    
+    def run_azure_ocr
+      document = Document.find(params[:id])
 
+      Ocr::AzureRunner.new(document).call
+
+      redirect_to documents_path,
+                  notice: "Azure OCR tamamlandı."
+    rescue => error
+      redirect_to documents_path,
+                  alert: "Azure OCR başarısız: #{error.message}"
+    end
   private
 
   def document_params

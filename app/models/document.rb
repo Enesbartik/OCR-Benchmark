@@ -1,13 +1,14 @@
 class Document < ApplicationRecord
-    has_one_attached :file
-    validates :name, presence: true
-    validate :file_must_be_attached
+  has_one_attached :file
 
+  has_many :ocr_runs, dependent: :destroy
 
-    private
+  validates :name, presence: true
+  validate :file_must_be_attached
 
-    def file_must_be_attached
-      errors.add(:file, "seçilmelidir") unless file.attached?
-    end
+  private
 
+  def file_must_be_attached
+    errors.add(:file, "seçilmelidir") unless file.attached?
+  end
 end

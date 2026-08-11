@@ -24,6 +24,19 @@
   </head>
 
   <body>
+
+    <% if notice.present? %>
+      <div class="mx-auto mt-6 max-w-5xl rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-800">
+        <%= notice %>
+      </div>
+    <% end %>
+
+    <% if alert.present? %>
+      <div class="mx-auto mt-6 max-w-5xl rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-800">
+        <%= alert %>
+      </div>
+    <% end %>
+
     <main class="container mx-auto mt-16 px-5">
       <%= yield %>
     </main>

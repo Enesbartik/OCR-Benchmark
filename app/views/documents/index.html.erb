@@ -38,13 +38,20 @@
             <% end %>
           </div>
 
-          <% if document.file.attached? %>
-            <%= link_to "Dosyayı Aç",
-                        rails_blob_path(document.file, disposition: "inline"),
-                        target: "_blank",
-                        rel: "noopener",
-                        class: "rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" %>
-          <% end %>
+          <div class="flex items-center gap-3">
+            <% if document.file.attached? %>
+              <%= link_to "Dosyayı Aç",
+                          rails_blob_path(document.file, disposition: "inline"),
+                          target: "_blank",
+                          rel: "noopener",
+                          class: "rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" %>
+            <% end %>
+          
+            <%= button_to "Azure OCR Çalıştır",
+                          run_azure_ocr_document_path(document),
+                          method: :post,
+                          class: "rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700" %>
+          </div>          
         </div>
 
       <% end %>
