@@ -1,21 +1,39 @@
 <div class="w-full max-w-2xl mx-auto">
   <div class="mb-8">
-    <%= link_to "← Beyannamelere dön",
+    <%= link_to "← OCR Çalıştırmalarına dön",
                 documents_path,
                 class: "text-sm font-medium text-gray-500 hover:text-gray-900" %>
 
     <h1 class="mt-5 text-3xl font-bold text-gray-900">
-      Beyanname Yükle
+      Yeni Çalıştırma
     </h1>
 
     <p class="mt-2 text-gray-500">
-      OCR ile test etmek istediğiniz beyannameyi sisteme yükleyin.
+      Beyannameyi yükleyin ve çalıştırmak istediğiniz OCR araçlarını seçin.
     </p>
   </div>
 
+
   <div class="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+
     <%= form_with model: @document do |form| %>
 
+      <% if @document.errors.any? %>
+        <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+          <p class="font-semibold text-red-800">
+            Çalıştırma başlatılamadı:
+          </p>
+
+          <ul class="mt-2 list-disc pl-5 text-sm text-red-700">
+            <% @document.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+
+      <!-- Belge adı -->
       <div class="mb-6">
         <%= form.label :name,
                        "Belge Adı",
@@ -26,33 +44,187 @@
                             class: "w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" %>
       </div>
 
-      <div class="mb-6">
+
+      <!-- Dosya yükleme -->
+      <div
+        class="mb-6"
+        data-controller="file-drop"
+      >
         <%= form.label :file,
                        "Beyanname Dosyası",
                        class: "mb-2 block text-sm font-semibold text-gray-700" %>
 
-        <div class="rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-6">
+        <div
+          data-file-drop-target="dropzone"
+          data-action="
+            dragenter->file-drop#dragEnter
+            dragover->file-drop#dragOver
+            dragleave->file-drop#dragLeave
+            drop->file-drop#drop
+          "
+          class="rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center transition-all duration-200"
+        >
+
+          <div
+            data-file-drop-target="icon"
+            class="text-4xl"
+          >
+            📄
+          </div>
+
+          <p
+            data-file-drop-target="message"
+            class="mt-3 font-medium text-gray-700"
+          >
+            Dosyayı buraya sürükleyip bırak
+          </p>
+
+          <p class="mt-1 text-sm text-gray-500">
+            veya
+          </p>
+
+          <button
+            type="button"
+            data-action="file-drop#chooseFile"
+            class="mt-4 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 cursor-pointer"
+          >
+            Dosya Seç
+          </button>
+
           <%= form.file_field :file,
                               accept: ".pdf,.jpg,.jpeg,.png",
-                              class: "block w-full text-sm text-gray-500
-                                      file:mr-4
-                                      file:rounded-lg
-                                      file:border-0
-                                      file:bg-blue-600
-                                      file:px-5
-                                      file:py-3
-                                      file:text-sm
-                                      file:font-semibold
-                                      file:text-white
-                                      hover:file:bg-blue-700
-                                      file:cursor-pointer" %>
+                              data: {
+                                file_drop_target: "input",
+                                action: "change->file-drop#fileSelected"
+                              },
+                              class: "hidden" %>
 
-          <p class="mt-4 text-sm text-gray-500">
-            Desteklenen formatlar: PDF, JPG ve PNG
+          <p
+            data-file-drop-target="emptyState"
+            class="mt-4 text-sm text-gray-500"
+          >
+            Henüz dosya seçilmedi
+          </p>
+
+          <!-- Seçilen dosya -->
+          <div
+            data-file-drop-target="selectedFile"
+            class="hidden mx-auto mt-5 max-w-md"
+          >
+            <div class="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm">
+
+              <div class="flex min-w-0 items-center gap-3">
+                <span class="text-lg">
+                  📎
+                </span>
+
+                <span
+                  data-file-drop-target="filename"
+                  class="truncate text-sm font-medium text-gray-700"
+                >
+                </span>
+              </div>
+
+              <button
+                type="button"
+                data-action="file-drop#removeFile"
+                title="Dosyayı kaldır"
+                class="ml-4 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-gray-400 hover:bg-red-50 hover:text-red-600 cursor-pointer"
+              >
+                ✕
+              </button>
+
+            </div>
+          </div>
+
+          <p class="mt-3 text-xs text-gray-500">
+            PDF, JPG, JPEG veya PNG
           </p>
         </div>
       </div>
 
+
+      <!-- OCR araçları -->
+      <div
+        class="mb-6"
+        data-controller="provider-select"
+      >
+        <div class="mb-3 flex items-center justify-between">
+
+          <p class="text-sm font-semibold text-gray-700">
+            OCR Araçları
+          </p>
+
+          <label class="flex cursor-pointer items-center gap-2 text-sm text-gray-600">
+            <input
+              type="checkbox"
+              data-provider-select-target="selectAll"
+              data-action="change->provider-select#toggleAll"
+              class="h-4 w-4 rounded border-gray-300"
+            >
+
+            Hepsini seç
+          </label>
+
+        </div>
+
+
+        <div class="space-y-3">
+
+          <!-- Azure -->
+          <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-200 p-4 hover:bg-gray-50">
+
+            <input
+              type="checkbox"
+              name="providers[]"
+              value="azure_content_understanding"
+              data-provider-select-target="provider"
+              data-action="change->provider-select#providerChanged"
+              class="h-4 w-4 rounded border-gray-300"
+            >
+
+            <div>
+              <p class="font-medium text-gray-900">
+                Azure Content Understanding
+              </p>
+
+              <p class="text-sm text-gray-500">
+                customsDeclarationV1
+              </p>
+            </div>
+
+          </label>
+
+
+          <!-- Mistral -->
+          <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-200 p-4 hover:bg-gray-50">
+
+            <input
+              type="checkbox"
+              name="providers[]"
+              value="mistral"
+              data-provider-select-target="provider"
+              data-action="change->provider-select#providerChanged"
+              class="h-4 w-4 rounded border-gray-300"
+            >
+
+            <div>
+              <p class="font-medium text-gray-900">
+                Mistral OCR
+              </p>
+
+              <p class="text-sm text-gray-500">
+                mistral-ocr-4-0
+              </p>
+            </div>
+
+          </label>
+
+        </div>
+      </div>
+
+
+      <!-- Not -->
       <div class="mb-8">
         <%= form.label :notes,
                        "Not",
@@ -60,15 +232,18 @@
 
         <%= form.text_area :notes,
                            rows: 4,
-                           placeholder: "Belgeyle ilgili isteğe bağlı not...",
+                           placeholder: "Örn: Azure ve Mistral karşılaştırması",
                            class: "w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" %>
       </div>
 
+
+      <!-- Çalıştır -->
       <div class="flex justify-end">
-        <%= form.submit "Beyannameyi Yükle",
+        <%= form.submit "Çalıştır",
                         class: "rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow-sm hover:bg-blue-700 cursor-pointer" %>
       </div>
 
     <% end %>
+
   </div>
 </div>

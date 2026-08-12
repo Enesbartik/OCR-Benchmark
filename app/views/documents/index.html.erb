@@ -1,73 +1,233 @@
-<div class="w-full max-w-5xl mx-auto">
-  <div class="flex items-center justify-between mb-8">
+<div
+  class="w-full max-w-7xl mx-auto"
+  <% if @ocr_runs.any? { |run| run.queued? || run.running? } %>
+    data-controller="run-status"
+    data-run-status-interval-value="2000"
+  <% end %>
+>
+
+  <!-- Header -->
+  <div class="mb-8 flex items-center justify-between">
     <div>
       <h1 class="text-3xl font-bold text-gray-900">
-        Beyannameler
+        OCR Çalıştırmaları
       </h1>
 
       <p class="mt-2 text-gray-600">
-        OCR ile test edilecek belgeleri burada yöneteceğiz.
+        Belgeler üzerinde yapılan OCR çalıştırmalarını karşılaştırın.
       </p>
     </div>
 
-    <%= link_to "Beyanname Yükle",
+    <%= link_to "+ Yeni Çalıştırma",
                 new_document_path,
                 class: "rounded-lg bg-blue-600 px-5 py-2.5 font-semibold text-white shadow-sm hover:bg-blue-700" %>
   </div>
 
-  <% if @documents.any? %>
+
+  <% if @ocr_runs.any? %>
+
     <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-      <% @documents.each do |document| %>
 
-        <div class="flex items-center justify-between p-5 border-b border-gray-200 last:border-b-0">
-          <div>
-            <p class="font-semibold text-gray-900">
-              <%= document.name %>
-            </p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
 
-            <% if document.file.attached? %>
-              <p class="mt-1 text-sm text-gray-500">
-                <%= document.file.filename.to_s %>
-              </p>
+          <!-- Table Header -->
+          <thead class="border-b border-gray-200 bg-gray-50">
+            <tr>
+              <th class="px-6 py-4 text-sm font-semibold text-gray-700">
+                Belge
+              </th>
+
+              <th class="px-6 py-4 text-sm font-semibold text-gray-700">
+                Araç
+              </th>
+
+              <th class="px-6 py-4 text-sm font-semibold text-gray-700">
+                Durum
+              </th>
+
+              <th class="px-6 py-4 text-sm font-semibold text-gray-700">
+                Tarih
+              </th>
+
+              <th class="px-6 py-4 text-sm font-semibold text-gray-700">
+                Süre
+              </th>
+
+              <th class="px-6 py-4 text-sm font-semibold text-gray-700">
+                Not
+              </th>
+
+              <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700">
+                Belge
+              </th>
+            </tr>
+          </thead>
+
+
+          <!-- Table Body -->
+          <tbody class="divide-y divide-gray-200">
+
+            <% @ocr_runs.each do |run| %>
+
+              <tr class="hover:bg-gray-50">
+
+                <!-- Belge -->
+                <td class="px-6 py-4">
+                  <p class="font-semibold text-gray-900">
+                    <%= run.document.name %>
+                  </p>
+
+                  <% if run.document.file.attached? %>
+                    <p class="mt-1 max-w-xs truncate text-sm text-gray-500">
+                      <%= run.document.file.filename.to_s %>
+                    </p>
+                  <% end %>
+                </td>
+
+
+                <!-- Provider -->
+                <td class="px-6 py-4">
+                  <p class="font-medium text-gray-900">
+                    <% provider = Ocr::ProviderRegistry.all[run.provider] %>
+
+                    <%= provider ? provider[:name] : run.provider %>
+                  </p>
+
+                  <% if run.provider_model.present? %>
+                    <p class="mt-1 text-xs text-gray-500">
+                      <%= run.provider_model %>
+                    </p>
+                  <% end %>
+                </td>
+
+
+                <!-- Status -->
+                <td class="px-6 py-4">
+
+                  <% case run.status %>
+                  <% when "queued" %>
+
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
+                      ◷ Bekliyor
+                    </span>
+
+                  <% when "running" %>
+
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                      ● Çalışıyor
+                    </span>
+
+                  <% when "completed" %>
+
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                      ✓ Bitti
+                    </span>
+
+                  <% when "failed" %>
+
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                      ✕ Hata
+                    </span>
+
+                  <% else %>
+
+                    <span class="text-sm text-gray-500">
+                      <%= run.status %>
+                    </span>
+
+                  <% end %>
+
+                </td>
+
+
+                <!-- Tarih -->
+                <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+                  <%= run.created_at.strftime("%d.%m.%Y") %>
+
+                  <p class="mt-1 text-xs text-gray-400">
+                    <%= run.created_at.strftime("%H:%M") %>
+                  </p>
+                </td>
+
+
+                <!-- Süre -->
+                <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
+
+                  <% if run.duration_ms.present? %>
+                    <%= number_with_precision(
+                          run.duration_ms / 1000.0,
+                          precision: 2
+                        ) %>
+                    sn
+                  <% else %>
+                    —
+                  <% end %>
+
+                </td>
+
+
+                <!-- Not -->
+                <td class="max-w-xs px-6 py-4 text-sm text-gray-600">
+
+                  <% if run.note.present? %>
+                    <span class="line-clamp-2">
+                      <%= run.note %>
+                    </span>
+                  <% else %>
+                    <span class="text-gray-400">
+                      —
+                    </span>
+                  <% end %>
+
+                </td>
+
+
+                <!-- Dosyayı aç -->
+                <td class="px-6 py-4 text-right">
+
+                  <% if run.document.file.attached? %>
+                    <%= link_to "Dosyayı Aç",
+                                rails_blob_path(
+                                  run.document.file,
+                                  disposition: "inline"
+                                ),
+                                target: "_blank",
+                                rel: "noopener",
+                                class: "whitespace-nowrap rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" %>
+                  <% end %>
+
+                </td>
+
+              </tr>
+
             <% end %>
 
-            <% if document.notes.present? %>
-              <p class="mt-2 text-sm text-gray-600">
-                <%= document.notes %>
-              </p>
-            <% end %>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <% if document.file.attached? %>
-              <%= link_to "Dosyayı Aç",
-                          rails_blob_path(document.file, disposition: "inline"),
-                          target: "_blank",
-                          rel: "noopener",
-                          class: "rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" %>
-            <% end %>
-          
-            <%= button_to "Azure OCR Çalıştır",
-                          run_azure_ocr_document_path(document),
-                          method: :post,
-                          class: "rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700" %>
-          </div>          
-        </div>
-
-      <% end %>
+          </tbody>
+        </table>
+      </div>
     </div>
+
 
   <% else %>
 
+    <!-- Empty State -->
     <div class="rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-12 text-center">
+
       <p class="font-medium text-gray-700">
-        Henüz yüklenmiş bir beyanname yok.
+        Henüz OCR çalıştırması yok.
       </p>
 
       <p class="mt-1 text-sm text-gray-500">
-        İlk belgenizi yükleyerek OCR testlerine başlayabilirsiniz.
+        İlk belgenizi yükleyerek bir OCR çalıştırması başlatabilirsiniz.
       </p>
+
+      <%= link_to "+ Yeni Çalıştırma",
+                  new_document_path,
+                  class: "mt-5 inline-block rounded-lg bg-blue-600 px-5 py-2.5 font-semibold text-white hover:bg-blue-700" %>
+
     </div>
 
   <% end %>
+
 </div>

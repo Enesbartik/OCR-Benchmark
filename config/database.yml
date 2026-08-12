@@ -21,8 +21,14 @@ default: &default
 
 
 development:
-  <<: *default
-  database: ocr_benchmark_development
+  primary:
+    <<: *default
+    database: ocr_benchmark_development
+
+  queue:
+    <<: *default
+    database: ocr_benchmark_development_queue
+    migrations_paths: db/queue_migrate
 
   # The specified database role being used to connect to PostgreSQL.
   # To create additional roles in PostgreSQL see `$ createuser --help`.

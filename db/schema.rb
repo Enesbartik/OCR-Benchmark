@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_11_065233) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_12_073411) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -51,15 +51,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_11_065233) do
   end
 
   create_table "ocr_runs", force: :cascade do |t|
+    t.decimal "cost_usd", precision: 12, scale: 6
     t.datetime "created_at", null: false
     t.bigint "document_id", null: false
+    t.integer "duration_ms"
     t.text "error_message"
     t.text "extracted_text"
+    t.datetime "finished_at"
+    t.integer "input_tokens"
+    t.jsonb "normalized_output", default: {}, null: false
+    t.text "note"
+    t.integer "output_tokens"
+    t.integer "page_count"
+    t.string "prompt_version"
     t.string "provider"
+    t.string "provider_model"
     t.jsonb "raw_response"
+    t.datetime "started_at"
     t.string "status"
     t.datetime "updated_at", null: false
     t.index ["document_id"], name: "index_ocr_runs_on_document_id"
+    t.index ["provider", "status", "created_at"], name: "index_ocr_runs_for_inspection"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

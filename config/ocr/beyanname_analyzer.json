@@ -1,0 +1,160 @@
+{
+  "description": "Customs declaration extraction — import/export/transit declarations, Turkish beyanname, UK C88/SAD, EU SAD",
+
+  "baseAnalyzerId": "prebuilt-document",
+
+  "models": {
+    "completion": "gpt-4.1-mini",
+    "embedding": "text-embedding-3-large"
+  },
+
+  "config": {
+    "returnDetails": true,
+    "enableOcr": true,
+    "enableLayout": true,
+    "estimateFieldSourceAndConfidence": true
+  },
+
+    "fieldSchema": {
+      "name": "CustomsDeclarationFields",
+      "fields": {
+        "Consignor": {
+          "type": "object",
+          "properties": {
+            "Name":     { "type": "string", "method": "extract", "description": "Full legal name of the consignor/exporter/sender company" },
+            "TaxId":    { "type": "string", "method": "extract", "description": "Tax identification number or EORI number of the consignor. May be labeled 'VKN', 'Tax No', 'EORI', 'TIN'" },
+            "Address":  { "type": "string", "method": "extract", "description": "Street address of the consignor" },
+            "City":     { "type": "string", "method": "extract", "description": "City name of the consignor"
+  },
+            "Country":  { "type": "string", "method": "extract", "description": "2-letter ISO country code of the consignor. Return ONLY the code, e.g. 'GB', 'DE', 'TR'" },
+            "Postcode": { "type": "string", "method": "extract", "description": "Postal/zip code of the consignor" }
+          }
+        },
+        "Consignee": {
+          "type": "object",
+          "properties": {
+            "Name":     { "type": "string", "method": "extract", "description": "Full legal name of the consignee/importer/receiver company" },
+            "TaxId":    { "type": "string", "method": "extract", "description": "Tax identification number or EORI number of the consignee. May be labeled 'VKN', 'Tax No', 'EORI', 'TIN'" },
+            "Address":  { "type": "string", "method": "extract", "description": "Street address of the consignee" },
+            "City":     { "type": "string", "method": "extract", "description": "City name of the consignee"
+  },
+            "Country":  { "type": "string", "method": "extract", "description": "2-letter ISO country code of the consignee. Return ONLY the code, e.g. 'GB', 'DE', 'TR'" },
+            "Postcode": { "type": "string", "method": "extract", "description": "Postal/zip code of the consignee" }
+          }
+        },
+        "DeclarationNumber": {
+          "type": "string", "method": "extract",
+          "description": "Unique declaration number or reference number. May be labeled 'Beyanname No', 'Declaration No', 'Entry Number', 'MRN'"
+        },
+        "DeclarationDate": {
+          "type": "date", "method": "extract",
+          "description": "Date of the customs declaration. May be labeled 'Tescil Tarihi', 'Declaration Date', 'Entry Date'"
+        },
+        "DeclarationType": {
+          "type": "string", "method": "extract",
+          "description": "Type/regime of declaration: IM (import), EX (export), TR (transit), CO (community). Return the 2-letter code"
+        },
+        "Countries": {
+          "type": "object",
+          "properties": {
+            "Export": { "type": "string", "method": "extract", "description": "2-letter ISO country code of the country of export/dispatch. Return ONLY the code" },
+            "Import": { "type": "string", "method": "extract", "description": "2-letter ISO country code of the country of destination/import. Return ONLY the code" },
+            "Origin": { "type": "string", "method": "extract", "description": "2-letter ISO country code of the country of origin. Return ONLY the code" }
+          }
+        },
+        "Totals": {
+          "type": "object",
+          "properties": {
+            "Packages":    { "type": "number", "method": "extract", "description": "Total number of packages in the declaration" },
+            "GrossWeight": { "type": "number", "method": "extract", "description": "Total gross weight in kilograms (KG)" },
+            "NetWeight":   { "type": "number", "method": "extract", "description": "Total net weight in kilograms (KG)" }
+          }
+        },
+        "Transport": {
+          "type": "object",
+          "properties": {
+            "Mode":             { "type": "string", "method": "extract", "description": "Mode of transport at the border. Numeric code: 1=sea, 2=rail, 3=road, 4=air, 6=RoRo. Return ONLY the number" },
+            "VehicleCode":      { "type": "string", "method": "extract", "description": "Vehicle identification at the border: ship IMO, truck plate number, flight number" },
+            "VehicleCountry":   { "type": "string", "method": "extract", "description": "2-letter ISO country code of the vehicle nationality. Return ONLY the code" },
+            "ContainerNumbers": { "type": "string", "method": "extract", "description": "Container number(s), comma-separated if multiple" },
+            "SealNumbers":      { "type": "string", "method": "extract", "description": "Seal number(s), comma-separated if multiple" }
+          }
+        },
+        "Invoice": {
+          "type": "object",
+          "properties": {
+            "FreightAmount":     { "type": "number", "method": "extract", "description": "Freight/transport cost amount" },
+            "FreightCurrency":   { "type": "string", "method": "extract", "description": "3-letter ISO currency code for freight amount (e.g. USD, EUR, GBP)" },
+            "InsuranceAmount":   { "type": "number", "method": "extract", "description": "Insurance cost amount" },
+            "InsuranceCurrency": { "type": "string", "method": "extract", "description": "3-letter ISO currency code for insurance amount" },
+            "Incoterm":          { "type": "string", "method": "extract", "description": "Incoterms delivery term code: EXW, FCA, FOB, CFR, CIF, CIP, CPT, DAP, DPU, DDP. Return ONLY the 3-letter code" },
+            "IncotermLocation":  { "type": "string", "method": "extract", "description": "Location associated with the incoterm (e.g. port name, city)" },
+            "ExchangeRate":      { "type": "number", "method": "extract", "description": "Exchange rate applied to the invoice currency" }
+          }
+        },
+        "Taxes": {
+          "type": "object",
+          "properties": {
+            "DutyAmount": { "type": "number", "method": "extract", "description": "Total customs duty amount"
+  },
+            "VatAmount":  { "type": "number", "method": "extract", "description": "Total VAT/KDV amount" }
+          }
+        },
+        "References": {
+          "type": "object",
+          "properties": {
+            "MRN":           { "type": "string", "method": "extract", "description": "Movement Reference Number (MRN) — 18-character alphanumeric code" },
+            "CommercialRef": { "type": "string", "method": "extract", "description": "Commercial reference number or trader reference" }
+          }
+        },
+        "Declaration": {
+          "type": "object",
+          "properties": {
+            "OfficeCode": { "type": "string", "method": "extract", "description": "Customs office code (e.g. 'GB000040', 'TR340100'). Numeric or alphanumeric identifier" },
+            "OfficeName": { "type": "string", "method": "extract", "description": "Name of the customs office"
+   }
+          }
+        },
+        "DeclarantName": {
+          "type": "string", "method": "extract",
+          "description": "Name of the customs declarant/agent/broker"
+        },
+        "DeclarantTaxId": {
+          "type": "string", "method": "extract",
+          "description": "EORI or tax ID of the customs declarant/agent"
+        },
+        "DeclarantAddress": {
+          "type": "string", "method": "extract",
+          "description": "Address of the customs declarant/agent"
+        },
+        "InvoiceAmount": {
+          "type": "number", "method": "extract",
+          "description": "Total invoice/statistical value of all goods"
+        },
+        "InvoiceCurrency": {
+          "type": "string", "method": "extract",
+          "description": "3-letter ISO currency code of the invoice (e.g. USD, EUR, GBP, TRY)"
+        },
+        "GoodsItems": {
+          "type": "array",
+          "description": "List of goods/commodity items in the declaration. Each item is a separate line in the declaration",
+          "items": {
+            "type": "object",
+            "properties": {
+              "GtipCode":          { "type": "string", "method": "extract", "description": "HS code or GTIP code (commodity code). Usually 6-12 digits, may contain dots" },
+              "Description":       { "type": "string", "method": "extract", "description": "Description of the goods/commodity" },
+              "CpcCode":           { "type": "string", "method": "extract", "description": "Customs Procedure Code (CPC). Usually 4-7 digit code (e.g. 1000, 4000, 4051)" },
+              "Quantity":          { "type": "number", "method": "extract", "description": "Quantity of goods"
+   },
+              "SupplementaryUnit": { "type": "number", "method": "extract", "description": "Supplementary units/quantity in a secondary unit of measure" },
+              "GrossWeight":       { "type": "number", "method": "extract", "description": "Gross weight of this item in kilograms (KG)" },
+              "NetWeight":         { "type": "number", "method": "extract", "description": "Net weight of this item in kilograms (KG)" },
+              "InvoiceAmount":     { "type": "number", "method": "extract", "description":
+  "Invoice/statistical value for this item" },
+              "OriginCountry":     { "type": "string", "method": "extract", "description": "2-letter ISO country code of origin for this item. Return ONLY the code" }
+            }
+          }
+        }
+      }
+    }
+  }

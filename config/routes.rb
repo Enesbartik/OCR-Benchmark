@@ -6,9 +6,6 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   resources :documents, only: %i[index new create] do
-    member do
-      post :run_azure_ocr
-    end
   end
 
   root "documents#index"

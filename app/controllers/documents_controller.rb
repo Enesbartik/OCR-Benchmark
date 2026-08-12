@@ -2,35 +2,63 @@ class DocumentsController < ApplicationController
 
 
     def index
-    @documents = Document.order(created_at: :desc)
-    end
+      @ocr_runs = OcrRun
+        .includes(document: { file_attachment: :blob })
+        .order(created_at: :desc)
+    end 
 
     def new
     @document = Document.new
     end
 
     def create
-    @document = Document.new(document_params)
-    @document.document_type = "declaration"
+        @document = Document.new(document_params)
+        @document.document_type = "declaration"
 
-      if @document.save
-      redirect_to documents_path
-      else
-      render :new, status: :unprocessable_entity
-      end
+        providers =
+        Array(params[:providers])
+            .uniq
+            .select { |provider| Ocr::ProviderRegistry.exists?(provider) }
+
+        if providers.empty?
+        @document.errors.add(
+            :base,
+            "En az bir OCR aracı seçmelisiniz."
+        )
+
+        render :new,
+                status: :unprocessable_entity
+
+        return
+        end
+
+        ocr_runs = []
+
+        ActiveRecord::Base.transaction do
+        @document.save!
+
+        providers.each do |provider|
+            ocr_runs << @document.ocr_runs.create!(
+            provider: provider,
+            status: "queued",
+            note: @document.notes
+            )
+        end
+        end
+
+        ocr_runs.each do |ocr_run|
+        OcrRunJob.perform_later(ocr_run.id)
+        end
+
+        redirect_to documents_path,
+                    notice: "OCR çalıştırması kuyruğa eklendi."
+
+        rescue ActiveRecord::RecordInvalid
+          render :new,
+             status: :unprocessable_entity
     end
+
     
-    def run_azure_ocr
-      document = Document.find(params[:id])
-
-      Ocr::AzureRunner.new(document).call
-
-      redirect_to documents_path,
-                  notice: "Azure OCR tamamlandı."
-    rescue => error
-      redirect_to documents_path,
-                  alert: "Azure OCR başarısız: #{error.message}"
-    end
   private
 
   def document_params
