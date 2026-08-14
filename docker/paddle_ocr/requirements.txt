@@ -1,0 +1,4 @@
+paddleocr==3.7.0
+fastapi
+uvicorn[standard]
+python-multipart

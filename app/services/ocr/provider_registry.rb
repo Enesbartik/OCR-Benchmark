@@ -14,6 +14,11 @@ module Ocr
       "gemini" => {
         name: "Gemini",
         runner: "Ocr::GeminiRunner"
+      },
+
+      "paddle_ocr" => {
+        name: "PaddleOCR",
+        runner: "Ocr::PaddleOcrRunner"
       }
     }.freeze
 
