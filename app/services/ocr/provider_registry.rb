@@ -1,15 +1,20 @@
 module Ocr
   class ProviderRegistry
     PROVIDERS = {
-    "azure_content_understanding" => {
+      "azure_content_understanding" => {
         name: "Azure Content Understanding",
         runner: "Ocr::ContentUnderstandingRunner"
-    },
+      },
 
-    "mistral" => {
+      "mistral" => {
         name: "Mistral OCR",
         runner: "Ocr::MistralRunner"
-    }
+      },
+
+      "gemini" => {
+        name: "Gemini",
+        runner: "Ocr::GeminiRunner"
+      }
     }.freeze
 
     def self.all

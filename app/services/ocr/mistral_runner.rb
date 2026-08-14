@@ -3,6 +3,7 @@ require "json"
 module Ocr
   class MistralRunner
     MODEL_NAME = "mistral-ocr-4-0"
+    PROMPT_VERSION = "mistral_customs_v3"
 
     def initialize(document)
       @document = document
@@ -42,7 +43,10 @@ module Ocr
           nil,
 
         provider_model:
-          result["model"].presence || MODEL_NAME
+          result["model"].presence || MODEL_NAME,
+
+        prompt_version:
+          PROMPT_VERSION
       }
     end
 

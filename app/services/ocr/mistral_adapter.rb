@@ -42,7 +42,14 @@ module Ocr
         },
 
         document_annotation_prompt:
-          "Extract only values supported by the document. Do not invent missing values.",
+        File.read(
+          Rails.root.join(
+            "config",
+            "ocr",
+            "prompts",
+            "mistral_customs_v3.txt"
+          )
+        ),      
 
         include_image_base64: false
       }.to_json

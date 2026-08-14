@@ -70,6 +70,9 @@ class OcrRunJob < ApplicationJob
       provider_model:
         result[:provider_model],
 
+      prompt_version:
+        result[:prompt_version],
+
       finished_at:
         Time.current,
 

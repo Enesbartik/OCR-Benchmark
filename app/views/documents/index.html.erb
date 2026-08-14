@@ -230,4 +230,160 @@
 
   <% end %>
 
+  <!-- Tüm Yüklenen Dosyalar -->
+  <div class="mt-12">
+
+    <div class="mb-5">
+      <h2 class="text-2xl font-bold text-gray-900">
+        Yüklenen Tüm Dosyalar
+      </h2>
+
+      <p class="mt-1 text-sm text-gray-600">
+        Sisteme yüklenen tüm dosyaları buradan görüntüleyebilirsiniz.
+      </p>
+    </div>
+
+    <% if @documents.any? %>
+
+      <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+
+        <div class="overflow-x-auto">
+
+          <table class="w-full text-left">
+
+            <thead class="border-b border-gray-200 bg-gray-50">
+
+              <tr>
+
+                <th class="px-6 py-4 text-sm font-semibold text-gray-700">
+                  Belge Adı
+                </th>
+
+                <th class="px-6 py-4 text-sm font-semibold text-gray-700">
+                  Dosya Adı
+                </th>
+
+                <th class="px-6 py-4 text-sm font-semibold text-gray-700">
+                  Yüklenme Tarihi
+                </th>
+
+                <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700">
+                  İşlem
+                </th>
+
+              </tr>
+
+            </thead>
+
+
+            <tbody class="divide-y divide-gray-200">
+
+              <% @documents.each do |document| %>
+
+                <tr class="hover:bg-gray-50">
+
+                  <!-- Belge adı -->
+                  <td class="px-6 py-4">
+
+                    <p class="font-semibold text-gray-900">
+                      <%= document.name %>
+                    </p>
+
+                  </td>
+
+
+                  <!-- Dosya adı -->
+                  <td class="px-6 py-4 text-sm text-gray-600">
+
+                    <% if document.file.attached? %>
+
+                      <%= document.file.filename.to_s %>
+
+                    <% else %>
+
+                      <span class="text-gray-400">
+                        Dosya yok
+                      </span>
+
+                    <% end %>
+
+                  </td>
+
+
+                  <!-- Tarih -->
+                  <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+
+                    <%= document.created_at.strftime("%d.%m.%Y") %>
+
+                    <p class="mt-1 text-xs text-gray-400">
+                      <%= document.created_at.strftime("%H:%M") %>
+                    </p>
+
+                  </td>
+
+
+                  <!-- Dosyayı aç -->
+                  <td class="px-6 py-4">
+
+                    <div class="flex items-center justify-end gap-2">
+
+                    <% if document.file.attached? %>
+
+                                        <%= link_to "Dosyayı Aç",
+                                  rails_blob_path(
+                                    document.file,
+                                    disposition: "inline"
+                                  ),
+                                  target: "_blank",
+                                  rel: "noopener",
+                                  class: "whitespace-nowrap rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" %>
+
+                    <% end %>
+
+                    <%= link_to "Çalıştır",
+                      new_document_path(document_id: document.id),
+                      class: "whitespace-nowrap rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700" %>
+
+
+
+                    <%= link_to "Sil",
+                                document_path(document),
+                                data: {
+                                  turbo_method: :delete,
+                                  turbo_confirm: "Bu dosyayı silmek istediğinizden emin misiniz?"
+                                },
+                                class: "whitespace-nowrap rounded-lg border border-red-300 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50" %>
+
+                  </div>
+
+                </td>
+
+                </tr>
+
+              <% end %>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    <% else %>
+
+      <div class="rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-8 text-center">
+
+        <p class="text-sm text-gray-500">
+          Henüz sisteme dosya yüklenmemiş.
+        </p>
+
+      </div>
+
+    <% end %>
+
+  </div>
+
+
+
 </div>
