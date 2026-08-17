@@ -407,8 +407,34 @@
 
             </div>
 
-          </label>          
+          </label>    
 
+          <!-- Tesseract OCR -->
+          <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-200 p-4 hover:bg-gray-50">
+
+            <input
+              type="checkbox"
+              name="providers[]"
+              value="tesseract_ocr"
+              data-provider-select-target="provider"
+              data-action="change->provider-select#providerChanged"
+              class="h-4 w-4 rounded border-gray-300"
+            >
+
+            <div>
+              <p class="font-medium text-gray-900">
+                Tesseract OCR
+              </p>
+
+              <p class="text-sm text-gray-500">
+                Tesseract 5 · Local Docker
+              </p>
+            </div>
+
+          </label>
+
+
+<%# CHECKBOXXXXXXXXXXX %>
 
         </div>
 

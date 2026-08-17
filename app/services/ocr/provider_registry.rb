@@ -19,7 +19,13 @@ module Ocr
       "paddle_ocr" => {
         name: "PaddleOCR",
         runner: "Ocr::PaddleOcrRunner"
+      },
+
+      "tesseract_ocr" => {
+        name: "Tesseract OCR",
+        runner: "Ocr::TesseractOcrRunner"
       }
+
     }.freeze
 
     def self.all
